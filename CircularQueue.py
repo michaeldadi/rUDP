@@ -13,7 +13,8 @@ class CircularQueue:
         else:
             self.tail = (self.tail + 1) % self.k
             self.queue[self.tail] = data
-
+            
+    # Remove operation
     def dequeue(self):
         if self.head == self.tail:
             temp = self.queue[self.head]

@@ -29,9 +29,8 @@ def create_rudp_dgram(seq, ack, payload):
     str_len = len(payload.decode())
     print(str_len)
     print(payload)
-    print(payload.decode())
 
-    print(str(sys.getsizeof(payload)) + " " + str(len(payload)) + " " + str(len(str(payload))))
+    print(str(len(str(payload))))
     # Generate RUDP datagram
     return struct.pack('III%ds' % str_len, seq, ack, str_len, payload)
 
@@ -112,6 +111,8 @@ while outputs and data:
             total_time += elapsed_time
             # Read data for next packet
             data = INPUT_FILE.read(BUF_SIZE)
+            # Allow time for receiver to unpack datagram
+            time.sleep(0.02)
 
     # On exception...
     for s in exceptional:
@@ -129,4 +130,5 @@ print("\nSent " + str(total_bytes_sent) + " bytes in " + str(total_time) + " sec
       + str((total_bytes_sent / total_time) / 1000) + " kB/s")
 
 # Close socket connection
+print(INPUT_FILE.read(BUF_SIZE))
 sock.close()

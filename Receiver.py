@@ -73,13 +73,14 @@ while inputs:
             print(str(payload_len) + "NUM", file=sys.stderr)
             # Data payload
             #print(data.decode(), file=sys.stderr)
-            msg = struct.unpack_from(b'%ds' % payload_len, data)[0]
-            # msg = msg[12:]
-
+            msg = struct.unpack_from('%ds' % payload_len, data)[0]
+            msg = msg[12:]
             # Calculate current ACK number
             print(len(msg), file=sys.stderr)
-            ack_num = seq_num + len(msg)
+            # Set ACK number to sum of current sequence number, payload data length, and 12 (to account for header)
+            ack_num = seq_num + len(msg) + 12
             # Add data payload to data buffer queue
+            print("HEY! > " + str(msg), file=sys.stderr)
             msg_queue.enqueue(msg)
             print("\n" + str(seq_num) + " " + str(recv_seq_num) + " " + str(ack_num) + "\n", file=sys.stderr)
             # If sequence number & ACK number of packet received match calculated sequence number & ACK number
@@ -91,8 +92,6 @@ while inputs:
                 else:
                     # Remove readable/exceptional child
                     inputs.remove(s)
-                    # Close socket connection
-                    sock.close()
 
                 # Set sequence number for next incoming packet
             seq_num = ack_num
@@ -101,9 +100,9 @@ while inputs:
     for s in writable:
         # Send ACK once data verified & saved
         sock.sendto("ACK".encode(), sender_addr)
+        print("sent ack", file=sys.stderr)
         # Save data to file
         # print(msg_queue.dequeue().decode(), end="")
-
         file = open(out_file, "ab")
         file.write(msg_queue.dequeue())
         file.close()
